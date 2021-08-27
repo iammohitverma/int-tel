@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>International Telephone Input</title>
+  <link rel="stylesheet" href="css/intlTelInput.css">
+  <link rel="stylesheet" href="css/demo.css">
+</head>
+
+<body>
+  <h1>International Telephone Input</h1>
+  <form>
+    <input id="phoneShow" name="phone" type="tel">
+    <input id="actualPhoneVal" name="phone" type="hidden">
+    <button type="submit">Submit</button>
+  </form>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="js/intlTelInput.js"></script>
+  <script>
+    var form = document.querySelector("form");
+    var phoneField = document.querySelector("#phoneShow");
+    var actualPhoneVal = document.getElementById("actualPhoneVal");
+    var countryCodeVal;
+    var phoneVal = 0;
+
+    intlTelInput(phoneField, {
+      utilsScript: "js/utils.js",
+      initialCountry: "auto",
+      geoIpLookup: function (success, failure) {
+        $.get("https://ipinfo.io", function () { }, "jsonp").always(function (resp) {
+          var countryCode = (resp && resp.country) ? resp.country : "us";
+          success(countryCode);
+        });
+      },
+    });
+    phoneField.addEventListener("countrychange", function () {
+      var countrycode = $('.iti__selected-flag').attr('title');
+      var arr = countrycode.split(':');
+      var countryCode_new = $.trim(arr[1]);
+      var customer_code_digit = countryCode_new.replace('', '');
+      countryCodeVal = customer_code_digit;
+      $('#actualPhoneVal').val(countryCodeVal + phoneVal);
+      console.log(countryCodeVal);
+      console.log($('#actualPhoneVal').val());
+    });
+
+    $('#phoneShow').on('input propertychange', function () {
+      phoneVal = this.value;
+      console.log(phoneVal);
+      $('#actualPhoneVal').val(countryCodeVal + phoneVal);
+      console.log($('#actualPhoneVal').val());
+    });
+
+
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      alert($('#actualPhoneVal').val());
+    });
+
+  </script>
+</body>
+
+</html>
